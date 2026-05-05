@@ -2,18 +2,17 @@
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Threading.Tasks;
+using Project_API.Class;
 
 [ApiController]
-[Route("api/v1/[controller]")] // => /api/v1/sdf
+[Route("api/[controller]")] // => /api/v1/sdf
 public class SdfController : ControllerBase
 {
 
-    // Nên cấu hình qua appsettings/IOptions, ví dụ tạm hardcode như bạn:
-    private const string Root = @"C:\Khanh_Project\Keyence_Project\PocketPC_Web\Pocket_Data";
-
     public SdfController()
     {
-        Directory.CreateDirectory(Root);
+        // Bảo đảm nơi chứa thông tin tồn tại
+        Directory.CreateDirectory(Cl_Connection.Root_data);
     }
 
 
@@ -33,7 +32,7 @@ public class SdfController : ControllerBase
             return BadRequest("name missing");
 
         var safeName = Path.GetFileName(name); // chống traversal
-        var finalPath = Path.Combine(Root, safeName);
+        var finalPath = Path.Combine(Cl_Connection.csv_folder, safeName);
 
         using (var fs = System.IO.File.Create(finalPath))
             await file.CopyToAsync(fs);
@@ -48,14 +47,13 @@ public class SdfController : ControllerBase
     public IActionResult Download()
     {
         // đường dẫn chứa file cần tải về thiết bị quét mã 
-        var filePath = Path.Combine(Root, "KeyenceData.sdf");
-        if (!System.IO.File.Exists(filePath))
+        if (!System.IO.File.Exists(Cl_Connection.sdf_path))
             return NotFound();
 
         // "KeyenceData_latest.sdf" là gợi ý tên tải về, cái tên này lúc gọi về sẽ thay đổi tùy thuộc cách gọi
         const string downloadName = "KeyenceData_latest.sdf";
         return PhysicalFile(
-            filePath,
+            Cl_Connection.sdf_path,
             "application/octet-stream",
             fileDownloadName: downloadName,
             enableRangeProcessing: true
