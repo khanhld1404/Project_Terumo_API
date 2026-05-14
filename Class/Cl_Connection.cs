@@ -4,6 +4,7 @@
     {
         // Nơi chứa thông tin dữ liệu, các file của chương trình 
         public const string Root_data = @"C:\Khanh_Project\Keyence_Project\PocketPC_Web\Pocket_Data";
+        //public const string Root_data = @"D:\Keyence_Project\Pocket_Data";
         // Nơi chứa thông tin các file csv
         public static string csv_folder = Path.Combine(Root_data,"Csv_file");
         // Nơi chứa dữ liệu quét(qua file sdf)
