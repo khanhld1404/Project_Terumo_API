@@ -32,14 +32,14 @@ public class ProductController : ControllerBase
     // GET: /api/products/by-code/code
     //  Get ở đây chỉ lấy giá  trị  đầu tiên trong cơ sở dữ liệu khi so sánh với ItemCode với Lotno
     // Đang bị một chỗ là nếu không có tìm đc  thì nó trả về giá trị 000000000 hêt
-    [HttpGet("{code}/{Lotno}")]
-    public async Task<IActionResult> GetById(string code, string Lotno)
+    [HttpGet("{code}/{Lotno}/{Location}")]
+    public async Task<IActionResult> GetById(string code, string Lotno, string Location)
     {
         try
         {
             var item = await _db.tblProducts
             .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.ItemCode == code && x.LotNo == Lotno);
+            .FirstOrDefaultAsync(x => x.ItemCode == code && x.LotNo == Lotno && x.Remark2 == Location);
 
             if (item is null)
                 return NotFound("Không tìm thấy sản phẩm tương ứng.");
@@ -63,7 +63,8 @@ public class ProductController : ControllerBase
         var allProductEinks = await _db.tblProducts.ToListAsync();
         var existedProduct = allProductEinks
                         .FirstOrDefault(s => s.ItemCode == req.ItemCode &&
-                    s.LotNo == req.LotNo);
+                    s.LotNo == req.LotNo
+                    && s.Remark2 == req.Location);
         if(existedProduct != null)
         {
             newid = existedProduct.IDItem;
@@ -76,6 +77,7 @@ public class ProductController : ControllerBase
                 // Giả sử bảng có các cột Name, Price; sửa theo schema của bạn
                 IDItem = newid,
                 ItemCode = req.ItemCode,
+                Remark2 = req.Location,
                 LotNo = req.LotNo,
                 QRCode = req.ItemCode + "%" + req.LotNo,
                 HeThong = "EVS_Eink",
@@ -124,7 +126,7 @@ public class ProductController : ControllerBase
                 // Kiểm tra có tồn tại sản phẩm ở server eink mà đồng thời tồn tại ở server local không
                 var existedProduct = allProductEinks
                     .FirstOrDefault(s => s.ItemCode == item.ItemCode &&
-                                    s.LotNo == item.LotNo);
+                                    s.LotNo == item.LotNo && s.Remark2 == item.Location);
 
                 Guid productId = Guid.NewGuid();
                 if (existedProduct != null)
@@ -140,6 +142,7 @@ public class ProductController : ControllerBase
                         IDItem = productId,
                         ItemCode = item.ItemCode,
                         LotNo = item.LotNo,
+                        Remark2 = item.Location,
                         QRCode = item.ItemCode + '%' +item.LotNo,
                         HeThong = "EVS_Eink",
                         R_float1 = item.R_float1,
@@ -169,7 +172,8 @@ public class ProductController : ControllerBase
             {
                 bool isExistInMES = productStockItems.Any(si =>
                     si.ItemCode == itemDelete.ItemCode &&
-                    si.LotNo == itemDelete.LotNo);
+                    si.LotNo == itemDelete.LotNo
+                    && si.Location == itemDelete.Remark2);
                 //Nếu không tồn tại thì xóa nó đi
                 if (!isExistInMES)
                 {
@@ -186,7 +190,7 @@ public class ProductController : ControllerBase
                             .FirstOrDefaultAsync(x => x.MAC == macEink);
                         if (eslLabel == null)
                         {
-                            return NotFound("\u26A0 Không tìm thấy thẻ eink này.");
+                            return NotFound("\u26A0 Không tìm thấy thẻ Eink này.");
                         }
                         _db.links.Remove(xoalink);
                     }
@@ -222,27 +226,27 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteById(string id, CancellationToken ct)
-    {
+    //[HttpDelete("{id}")]
+    //public async Task<IActionResult> DeleteById(string id, CancellationToken ct)
+    //{
 
-        // B1: Parse string -> Guid
-        if (!Guid.TryParse(id, out var idGuid))
-        {
-            return BadRequest(new { message = "ID không hợp lệ. Vui lòng truyền chuỗi Guid (ví dụ: 2000284f-92a9-4e50-a765-06b29bbe2c44)." });
-        }
+    //    // B1: Parse string -> Guid
+    //    if (!Guid.TryParse(id, out var idGuid))
+    //    {
+    //        return BadRequest(new { message = "ID không hợp lệ. Vui lòng truyền chuỗi Guid (ví dụ: 2000284f-92a9-4e50-a765-06b29bbe2c44)." });
+    //    }
 
-        // Vì IDItem là khóa chính, dùng FindAsync sẽ tối ưu:
-        var entity = await _db.tblProducts.FindAsync(new object[] { idGuid }, ct);  
+    //    // Vì IDItem là khóa chính, dùng FindAsync sẽ tối ưu:
+    //    var entity = await _db.tblProducts.FindAsync(new object[] { idGuid }, ct);  
 
-        if (entity == null)
-            return NotFound($"Không tìm thấy sản phẩm với IDItem = {idGuid}" );
+    //    if (entity == null)
+    //        return NotFound($"Không tìm thấy sản phẩm với IDItem = {idGuid}" );
 
-        _db.tblProducts.Remove(entity);
-        await _db.SaveChangesAsync(ct);
+    //    _db.tblProducts.Remove(entity);
+    //    await _db.SaveChangesAsync(ct);
 
-        return NoContent(); // 204 theo chuẩn khi xóa thành công
-    }
+    //    return NoContent(); // 204 theo chuẩn khi xóa thành công
+    //}
 
 }
 

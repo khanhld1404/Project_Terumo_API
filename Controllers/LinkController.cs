@@ -40,7 +40,7 @@ public class LinkController : ControllerBase
                 MAC = p.MAC
             })
             .FirstOrDefaultAsync();
-            return item is null ? NotFound("Không tìm thấy link cần tìm!") : Ok(item);
+            return item is null ? NotFound("Không tìm thấy thẻ Eink cần tìm!") : Ok(item);
         }catch (Exception ex)
         {
             return BadRequest(ex.Message);
@@ -82,7 +82,7 @@ public class LinkController : ControllerBase
         };
         var macExists = await _db.links.AnyAsync(x => x.MAC == req.MAC);
         if (macExists)
-            return Conflict("Thẻ elink đã được sử dụng!");
+            return Conflict("Thẻ Eink đã được sử dụng!");
         _db.links.Add(p);
 
         await _db.SaveChangesAsync();
@@ -96,7 +96,7 @@ public class LinkController : ControllerBase
         var entity = await _db.links.FindAsync(new object[] { id }, ct);
 
         if (entity == null)
-            return NotFound($"Không tìm thấy thẻ elink với MAC = {id}");
+            return NotFound($"Không tìm thấy thẻ Eink với MAC = {id}");
 
         _db.links.Remove(entity);
         await _db.SaveChangesAsync(ct);
