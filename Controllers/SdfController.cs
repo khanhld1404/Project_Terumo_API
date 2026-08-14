@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Project_API.Class;
 
 [ApiController]
-[Route("api/[controller]")] // => /api/v1/sdf
+[Route("api/v1/[controller]")] // => /api/v1/sdf
 public class SdfController : ControllerBase
 {
 

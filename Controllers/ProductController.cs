@@ -21,9 +21,12 @@ public class ProductController : ControllerBase
                 IDItem = p.IDItem,
                 LotNo = p.LotNo,
                 ItemCode = p.ItemCode,
+                Location = p.Remark2,
                 HeThong = p.HeThong,
                 R_float1 = p.R_float1,
                 R_float2 = p.R_float2,
+                R_float3 = p.R_float3
+
             })
             .ToListAsync();
         return Ok(items);
@@ -83,6 +86,8 @@ public class ProductController : ControllerBase
                 HeThong = "EVS_Eink",
                 R_float1 = req.R_float1,
                 R_float2 = req.R_float2,
+                R_float3 = req.R_float3,
+
             };
 
             _db.tblProducts.Add(p);
@@ -133,6 +138,7 @@ public class ProductController : ControllerBase
                 {
                     existedProduct.R_float1 = item.R_float1;
                     existedProduct.R_float2 = item.R_float2;
+                    existedProduct.R_float3 = item.R_float3;
                     productsToUpdate.Add(existedProduct);
                 }
                 else
@@ -147,6 +153,7 @@ public class ProductController : ControllerBase
                         HeThong = "EVS_Eink",
                         R_float1 = item.R_float1,
                         R_float2 = item.R_float2,
+                        R_float3 = item.R_float3,
                     };
                     productsToAdd.Add(newProduct);
                 }
